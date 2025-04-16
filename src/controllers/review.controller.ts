@@ -112,3 +112,36 @@ export const deleteReview = async (
     res.status(500).json({ message: "Server error", error });
   }
 };
+
+export const getAverageRatings = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // Aggregation pipeline to calculate the average rating for each book
+    const averageRatings = await Review.aggregate([
+      {
+        $group: {
+          _id: "$bookTitle",  // Group by bookTitle
+          averageRating: { $avg: "$rating" },  // Calculate the average rating for the group
+          count: { $sum: 1 }  // Count the number of reviews for each book
+        }
+      },
+      {
+        $project: {
+          bookTitle: "$_id",  // Rename the _id field to bookTitle for clarity
+          averageRating: 1,
+          count: 1,
+          _id: 0  // Exclude the _id field from the result
+        }
+      }
+    ]);
+
+    if (averageRatings.length === 0) {
+       res.status(404).json({ message: "No reviews found to calculate average ratings." });
+       return ;
+    }
+
+    res.status(200).json(averageRatings);  // Return the average ratings per book
+  } catch (error) {
+    console.error(error);  // Log the error for debugging
+    res.status(500).json({ message: "Server error", error });
+  }
+};

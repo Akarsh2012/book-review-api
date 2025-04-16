@@ -5,6 +5,7 @@ import {
   getReviewById,
   updateReview,
   deleteReview,
+  getAverageRatings,
 } from "../controllers/review.controller";
 import { authenticateAPI } from "../middlewares/auth.middleware";
 
@@ -18,5 +19,6 @@ router.get("/", getAllReviews);
 router.get("/:id", getReviewById);
 router.put("/:id", updateReview);
 router.delete("/:id", deleteReview);
+router.get("/stats/average", authenticateAPI, getAverageRatings);
 
 export default router;
